@@ -1,6 +1,9 @@
 #!/bin/bash
 
-git diff --name-only ${{ github.sha }} ${{ github.sha }}^ | while read -r file
+commit_sha="$1"
+prev_commit_sha="$2"
+
+git diff --name-only $commit_sha $prev_commit_sha | while read -r file
 do
     dir=$(dirname "$file")
     lambda_name="${dir##*/}"
@@ -10,7 +13,3 @@ do
     rm "../$lambda_name.zip"
     cd ..
 done
-
-
-
-      
