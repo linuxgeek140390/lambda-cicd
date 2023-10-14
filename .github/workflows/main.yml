@@ -1,4 +1,4 @@
-name: Deploy Lambda on Git Push
+name: CI
 
 on:
   push:
@@ -6,13 +6,21 @@ on:
       - main
 
 jobs:
-  deploy:
-    runs-on: self-hosted
-
+  
+  changed_files:
+    runs-on: self-hosted  
+    name: Test changed-files
     steps:
-    - name: Check out the code
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-    - name: Deploy Lambda Function
-      run: sh update-lambda.sh ${{ github.sha }} ${{ github.sha }}^
-        
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v39
+
+      - name: List all changed files
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
+          done
