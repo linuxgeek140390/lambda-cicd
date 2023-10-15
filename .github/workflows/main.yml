@@ -35,6 +35,8 @@ jobs:
             if aws lambda update-function-code --function-name "$lambda_name" --zip-file "fileb:///tmp/$lambda_name.zip"
             then
             echo "lambda updated successfully so cleaning up zip files..."
-            # Clean up the temporary zip file
             rm "/tmp/$lambda_name.zip"
-          done
+            else
+            echo "lambda update failed"
+            fi
+            done
