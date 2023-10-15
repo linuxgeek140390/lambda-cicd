@@ -1,4 +1,4 @@
-name: CI
+name: AWS lambda deploy with GitHub Actions
 
 on:
   push:
@@ -6,21 +6,35 @@ on:
       - main
 
 jobs:
-  
-  changed_files:
-    runs-on: self-hosted  
-    name: Test changed-files
+  update_lambdas:
+    runs-on: self-hosted
+    name: Update Lambda Functions
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Get changed files
+      - name: Identify Changed Files
         id: changed-files
         uses: tj-actions/changed-files@v39
 
-      - name: List all changed files
+      - name: Create and Update Lambda Functions
         run: |
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$file was changed"
+            # Extract the directory name (Lambda function name) from the file path
+            lambda_name=$(dirname "$file")
+
+            # Create a zip file for the changed Lambda function
+            cd "$lambda_name"
+            zip -r "/tmp/$lambda_name.zip" .
+            cd ..
+
+            # Update the Lambda function with the new zip file
+            if aws lambda update-function-code --function-name "$lambda_name" --zip-file "fileb:///tmp/$lambda_name.zip"
+            then
+            echo "lambda updated successfully so cleaning up zip files..."
+            # Clean up the temporary zip file
+            rm "/tmp/$lambda_name.zip"
           done
