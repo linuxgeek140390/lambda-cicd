@@ -3,11 +3,11 @@ name: AWS lambda deploy with GitHub Actions
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   update_lambdas:
-    runs-on: self-hosted
+    runs-on: dev_runner
     name: Update Lambda Functions
 
     steps:
